@@ -1,5 +1,7 @@
 package com.attijari.bankingservices.utils;
 
+import com.attijari.bankingservices.models.Beneficiaire;
+import com.attijari.bankingservices.models.Compte;
 import com.attijari.bankingservices.models.Operation;
 import lombok.*;
 
@@ -14,10 +16,8 @@ import java.util.Optional;
 @NoArgsConstructor
 public class ManageUserOperations {
     Long userId;
-    String typeCompte;
-    String type;
-    BigDecimal montant;
-    String numeroCompte;
-    String ribBeneficiaire;
-    Optional<String> motif;
+    Compte compte;
+    Operation operation;
+    Beneficiaire beneficiaire;
+
 }

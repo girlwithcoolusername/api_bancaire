@@ -1,28 +1,33 @@
 package com.attijari.bankingservices.services.implementations;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import com.attijari.bankingservices.models.*;
+import com.attijari.bankingservices.models.Agence;
+import com.attijari.bankingservices.models.Client;
+import com.attijari.bankingservices.models.Compte;
+import com.attijari.bankingservices.models.Utilisateur;
 import com.attijari.bankingservices.repositories.AgenceRepository;
 import com.attijari.bankingservices.repositories.CompteRepository;
 import com.attijari.bankingservices.repositories.UtilisateurRepository;
 import com.attijari.bankingservices.services.AgenceService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class AgenceServiceImpl implements AgenceService {
 
     private static final double MAX_DISTANCE = 10000.0;
-    private final String apiKey = "AIzaSyDRiSfn0djzWOIwneu-xLtuTgEZ-y7b_TM";
-
     private final AgenceRepository agenceRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final CompteRepository compteRepository;
@@ -58,6 +63,7 @@ public class AgenceServiceImpl implements AgenceService {
         }
         return agencies;
     }
+
     @Override
     public List<Agence> getAgenciesByRegistredAddress(Long userId) {
         Utilisateur user = utilisateurRepository.findById(userId).orElse(null);
@@ -66,50 +72,67 @@ public class AgenceServiceImpl implements AgenceService {
         }
 
         String address = user.getClient().getAdresse();
-
         try {
-            URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + apiKey);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode response = mapper.readTree(url);
-
-            JsonNode location = response.get("results").get(0).get("geometry").get("location");
-            BigDecimal latitude = BigDecimal.valueOf(location.get("lat").asDouble());
-            BigDecimal longitude = BigDecimal.valueOf(location.get("lng").asDouble());
-
-            return getAgenciesByUserLocation(latitude, longitude);
-        } catch (IOException e) {
+            double[] LatLon = getLatLonFromAddress(address);
+            if (LatLon != null) {
+                BigDecimal latitude = BigDecimal.valueOf(LatLon[0]);
+                BigDecimal longitude = BigDecimal.valueOf(LatLon[1]);
+                return getAgenciesByUserLocation(latitude, longitude);
+            } else {
+                // Handle invalid address or API error
+                return Collections.emptyList();
+            }
+        } catch (Exception e) {
+            // Handle API errors or network issues
             e.printStackTrace();
             return Collections.emptyList();
+        }
+    }
+
+    private double[] getLatLonFromAddress(String address) throws IOException {
+        String formattedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+        String urlString = "https://nominatim.openstreetmap.org/search?q=" + formattedAddress + "&format=jsonv2";
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(urlString).openStream()))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            JSONArray jsonArray = new JSONArray(response.toString());
+            if (jsonArray.length() > 0) {
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                double lat = jsonObject.optDouble("lat");
+                double lon = jsonObject.optDouble("lon");
+                return new double[]{lat, lon};
+            } else {
+                return null;
+            }
         }
     }
 
     @Override
     public List<Agence> getAgenciesByUserLocation(BigDecimal lat, BigDecimal lng) {
         List<Agence> nearestAgencies = new ArrayList<>();
-
         for (Agence agence : agenceRepository.findAll()) {
+            double[] LatLon = new double[0];
             try {
-                URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + agence.getAdresse() + "&key=" + apiKey);
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode response = mapper.readTree(url);
+                LatLon = getLatLonFromAddress(agence.getAdresse());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-                JsonNode location = response.get("results").get(0).get("geometry").get("location");
-                BigDecimal latitude = BigDecimal.valueOf(location.get("lat").asDouble());
-                BigDecimal longitude = BigDecimal.valueOf(location.get("lng").asDouble());
+            if (LatLon != null) {
+                double latDiff = lat.doubleValue() - LatLon[0];
+                double lonDiff = lng.doubleValue() - LatLon[1];
 
-                double latDiff = lat.doubleValue() - latitude.doubleValue();
-                double lngDiff = lng.doubleValue() - longitude.doubleValue();
-
-                double distance = Math.sqrt(Math.pow(latDiff, 2) + Math.pow(lngDiff, 2));
+                double distance = Math.sqrt(Math.pow(latDiff, 2) + Math.pow(lonDiff, 2));
                 if (distance <= MAX_DISTANCE) {
                     nearestAgencies.add(agence);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return Collections.emptyList();
             }
-
-
         }
 
         return nearestAgencies;

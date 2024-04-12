@@ -4,6 +4,7 @@ import com.attijari.bankingservices.models.Carte;
 import com.attijari.bankingservices.services.CarteService;
 import com.attijari.bankingservices.utils.ManageDictEntities;
 import com.attijari.bankingservices.utils.ManageUserCartes;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class CarteController {
     private CarteService carteService;
 
     @GetMapping("/user/{userId}")
+    @Operation(summary="Méthode pour récupérer les cartes par id d'utilisateur")
     public ResponseEntity<List<Carte>> getCardByUser(@PathVariable Long userId) {
         List<Carte> cartes = carteService.getCardByUserId(userId);
         if (cartes != null) {
@@ -32,6 +34,7 @@ public class CarteController {
     }
 
     @GetMapping("/userCardsByType/{userId}/{typeCard}")
+    @Operation(summary="Méthode pour récupérer les cartes par id d'utilisateur et type de carte")
     public ResponseEntity<List<Carte>> getCardByType(@PathVariable Long userId, @PathVariable String typeCard) {
         List<Carte> cartes = carteService.getCardByUserIdAndType(userId, typeCard);
         if (cartes != null) {
@@ -42,6 +45,7 @@ public class CarteController {
     }
 
     @PostMapping("/searchEntitiesDict")
+    @Operation(summary="Méthode pour récupérer les cartes par id d'utilisateur et autres attributs de carte")
     public ResponseEntity<List<Carte>> getCardByUserIdAndEntities(@RequestBody ManageDictEntities manager) {
         List<Carte> cartes = carteService.getCardByUserIdAndEntities(manager.getUserId(), manager.getEntitiesDic());
         if (!cartes.isEmpty()) {
@@ -51,6 +55,7 @@ public class CarteController {
     }
 
     @PutMapping("/updateByCardNum")
+    @Operation(summary="Méthode pour modifier les services d'une carte par id d'utilisateur et numéro de carte")
     public ResponseEntity<String> updateCardServicesByCardNum(@RequestBody ManageUserCartes manager) {
         Long numeroCarte = manager.getCarte().getNumeroCarte();
         Optional<Carte> card = carteService.getCardByNum(numeroCarte);
@@ -63,6 +68,7 @@ public class CarteController {
     }
 
     @PutMapping("/updateByCardType")
+    @Operation(summary="Méthode pour modifier les services d'une carte par id d'utilisateur et type de carte")
     public ResponseEntity<String> updateCardServicesByCardType(@RequestBody ManageUserCartes manager) {
         List<Carte> cartes = carteService.getCardByUserIdAndType(manager.getUserId(), manager.getCarte().getTypeCarte());
         if (!cartes.isEmpty()) {
@@ -78,6 +84,7 @@ public class CarteController {
     }
 
     @PutMapping("/opposeByCardNum")
+    @Operation(summary="Méthode pour opposer une carte par id d'utilisateur et numéro de carte")
     public ResponseEntity<String> opposeCardByCardNum(@RequestBody ManageUserCartes manager) {
         Long numeroCarte = manager.getCarte().getNumeroCarte();
         Optional<Carte> card = carteService.getCardByNum(numeroCarte);
@@ -95,6 +102,7 @@ public class CarteController {
     }
 
     @PutMapping("/opposeByCardType")
+    @Operation(summary="Méthode pour opposer une carte par id d'utilisateur et type de carte")
     public ResponseEntity<String> opposeCardByCardType(@RequestBody ManageUserCartes manager) {
         List<Carte> cartes = carteService.getCardByUserIdAndType(manager.getUserId(), manager.getCarte().getTypeCarte());
         if (!cartes.isEmpty()) {

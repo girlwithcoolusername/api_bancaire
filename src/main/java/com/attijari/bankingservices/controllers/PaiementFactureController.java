@@ -6,6 +6,7 @@ import com.attijari.bankingservices.services.CompteService;
 import com.attijari.bankingservices.services.FactureService;
 import com.attijari.bankingservices.services.PaiementFactureService;
 import com.attijari.bankingservices.utils.ManageUserInvoicePayments;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class PaiementFactureController {
     }
 
     @PostMapping("/addInvoiceByAccountType")
+    @Operation(summary = "Méthode pour ajouter le paiement d'une transaction par numéro de compte bancaire")
     public ResponseEntity<String> addTransactionByAccountType(@RequestBody ManageUserInvoicePayments m) {
         Optional<Facture> invoice = factureService.getInvoiceByNumber(m.getNumeroFacture());
         if (invoice.isPresent()) {
@@ -53,6 +55,7 @@ public class PaiementFactureController {
         }
     }
     @PostMapping("/addInvoiceByAccountNum")
+    @Operation(summary = "Méthode pour ajouter le paiement d'une transaction par type de compte bancaire")
     public ResponseEntity<String> addTransactionByAccountNum(@RequestBody ManageUserInvoicePayments m) {
         Optional<Facture> invoice = factureService.getInvoiceByNumber(m.getNumeroFacture());
         if(invoice.isPresent()){

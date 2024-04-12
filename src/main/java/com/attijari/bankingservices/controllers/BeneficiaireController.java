@@ -3,6 +3,7 @@ package com.attijari.bankingservices.controllers;
 import com.attijari.bankingservices.models.Beneficiaire;
 import com.attijari.bankingservices.services.BeneficiaireService;
 import com.attijari.bankingservices.utils.ManageUserBeneficiaires;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,14 @@ public class BeneficiaireController {
     private BeneficiaireService beneficiaireService;
 
     @PostMapping("/add")
+    @Operation(summary="Méthode pour ajouter un bénéficiaires")
     public ResponseEntity<String> addBeneficiary(@RequestBody ManageUserBeneficiaires manageUserBeneficiaires) {
         beneficiaireService.addBeneficiary(manageUserBeneficiaires.getUserId(), manageUserBeneficiaires.getBeneficiaire().getRib(), manageUserBeneficiaires.getBeneficiaire().getPrenom(), manageUserBeneficiaires.getBeneficiaire().getNom(), manageUserBeneficiaires.getBeneficiaire().getTypeBeneficiaire());
         return ResponseEntity.status(HttpStatus.CREATED).body("Beneficiary added successfully.");
     }
 
     @PostMapping("/user/names")
+    @Operation(summary="Méthode pour récupérer les bénéficiaires par id d'utilisateur et nom du bénéficiaire")
     public ResponseEntity<List<Beneficiaire>> getBeneficiariesByName(@RequestBody ManageUserBeneficiaires manager) {
         List<Beneficiaire> beneficiaries = beneficiaireService.getBeneficiaryByUserIdNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
         if (!beneficiaries.isEmpty()) {
@@ -36,6 +39,7 @@ public class BeneficiaireController {
 
 
     @PutMapping("/update/rib")
+    @Operation(summary="Méthode pour modifier un bénéficiaire par id d'utilisateur et rib du bénéficiaire")
     public ResponseEntity<String> updateBeneficiaryByRib(@RequestBody ManageUserBeneficiaires manager) {
         Beneficiaire beneficiaire = beneficiaireService.getBeneficiaryByUserIdAndRib(manager.getUserId(), manager.getOldRib());
         if (beneficiaire != null) {
@@ -46,6 +50,7 @@ public class BeneficiaireController {
     }
 
     @PutMapping("/update/names")
+    @Operation(summary="Méthode pour modifier un bénéficiaire par id d'utilisateur et nom du bénéficiaire")
     public ResponseEntity<String> updateBeneficiaryByNames(@RequestBody ManageUserBeneficiaires manager) {
         List<Beneficiaire> beneficiaires = beneficiaireService.getBeneficiaryByUserIdNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
         if (beneficiaires.size() > 1) {
@@ -59,6 +64,7 @@ public class BeneficiaireController {
     }
 
     @DeleteMapping("/delete/names")
+    @Operation(summary="Méthode pour supprimer un bénéficiaire par id d'utilisateur et nom du bénéficiaire")
     public ResponseEntity<String> deleteBeneficiaryByNames(@RequestBody ManageUserBeneficiaires manager) {
         List<Beneficiaire> beneficiares = beneficiaireService.getBeneficiaryByUserIdNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
         if (beneficiares.size() > 1) {
@@ -72,6 +78,7 @@ public class BeneficiaireController {
     }
 
     @DeleteMapping("/delete/rib")
+    @Operation(summary="Méthode pour supprimer un bénéficiaire par id d'utilisateur et rib")
     public ResponseEntity<String> deleteBeneficiaryByRib(@RequestBody ManageUserBeneficiaires manager) {
         Beneficiaire beneficiaire = beneficiaireService.getBeneficiaryByUserIdAndRib(manager.getUserId(), manager.getBeneficiaire().getRib());
         if (beneficiaire != null) {

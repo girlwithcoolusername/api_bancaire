@@ -58,7 +58,7 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public void addTransactionByAccountType(Long userId, String accountType, String ribBeneficiare, BigDecimal amount, Optional<String> note, String type) {
+    public void addTransactionByAccountType(Long userId, String accountType, String ribBeneficiare, BigDecimal amount, String note, String type) {
         Optional<Utilisateur> user = utilisateurRepository.findById(userId);
         Operation operation = new Operation();
         if (user.isPresent()) {
@@ -71,7 +71,7 @@ public class OperationServiceImpl implements OperationService {
                 operation.setDateOperation(new Timestamp(System.currentTimeMillis()));
                 operation.setMontant(amount);
                 operation.setBeneficiaire(beneficiaire);
-                operation.setMotif(note.orElse("sans motif"));
+                operation.setMotif(note.isEmpty() ? "Sans motif" : note);
                 operation.setCategorieOperation("Virement");
                 operationRepository.save(operation);
             }
@@ -80,7 +80,7 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public void addTransactionByAccountNum(Long userId, String accountNum, String ribBeneficiare, BigDecimal amount, Optional<String> note, String type) {
+    public void addTransactionByAccountNum(Long userId, String accountNum, String ribBeneficiare, BigDecimal amount, String note, String type) {
         Optional<Utilisateur> user = utilisateurRepository.findById(userId);
         Operation operation = new Operation();
         if (user.isPresent()) {
@@ -94,7 +94,7 @@ public class OperationServiceImpl implements OperationService {
                     operation.setDateOperation(new Timestamp(System.currentTimeMillis()));
                     operation.setMontant(amount);
                     operation.setBeneficiaire(beneficiaire);
-                    operation.setMotif(note.orElse("sans motif"));
+                    operation.setMotif(note.isEmpty() ? "Sans motif" : note);
                     operation.setCategorieOperation("Virement");
                     operationRepository.save(operation);
                 }

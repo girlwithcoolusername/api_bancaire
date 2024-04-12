@@ -2,6 +2,7 @@ package com.attijari.bankingservices.controllers;
 
 import com.attijari.bankingservices.models.Agence;
 import com.attijari.bankingservices.services.AgenceService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class AgenceController {
     private AgenceService agenceService;
 
     @GetMapping("/")
+    @Operation(summary="Méthode pour récupérer les agences de l'API")
     public ResponseEntity<List<Agence>> getAllAgencies() {
         List<Agence> agencies = agenceService.getAllAgencies();
         if (!agencies.isEmpty()) {
@@ -32,6 +34,7 @@ public class AgenceController {
     }
 
     @GetMapping("/userAddress/{userId}")
+    @Operation(summary="Méthode pour récupérer les agences par adresse de l'utilisteur")
     public ResponseEntity<List<Agence>> getAgenciesByRegistredAddress(@PathVariable Long userId) {
         List<Agence> agencies = agenceService.getAgenciesByRegistredAddress(userId);
         if (!agencies.isEmpty()) {
@@ -41,6 +44,7 @@ public class AgenceController {
         }
     }
     @GetMapping("/user/{userId}")
+    @Operation(summary="Méthode pour récupérer les agences où l'utilisateur détient un compte")
     public ResponseEntity<List<Agence>> getAgenciesByUserId(@PathVariable Long userId) {
         List<Agence> agencies = agenceService.getAgenciesByUserId(userId);
         if (!agencies.isEmpty()) {
@@ -51,6 +55,7 @@ public class AgenceController {
     }
 
     @GetMapping("/location/{lat}/{lng}")
+    @Operation(summary="Méthode pour récupérer les agences par localisation actuelle de l'utilisteur")
     public ResponseEntity<List<Agence>> getAgenciesByLocation(@PathVariable BigDecimal lat, @PathVariable BigDecimal lng) {
         List<Agence> agencies = agenceService.getAgenciesByUserLocation(lat, lng);
         if (!agencies.isEmpty()) {

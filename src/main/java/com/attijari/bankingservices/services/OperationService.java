@@ -13,8 +13,8 @@ public interface OperationService {
 
     List<Operation> getTransactionByUserIdEntities(Long userId, Map<String, Object> entitiesDict);
 
-    void addTransactionByAccountType(Long userId, String accountType, String ribBeneficiare, BigDecimal amount, Optional<String> note, String type);
+    void addTransactionByAccountType(Long userId, String accountType, String ribBeneficiare, BigDecimal amount, String note, String type);
 
-    void addTransactionByAccountNum(Long userId, String accountNum, String ribBeneficiare, BigDecimal amount, Optional<String> note, String type);
+    void addTransactionByAccountNum(Long userId, String accountNum, String ribBeneficiare, BigDecimal amount, String note, String type);
 
 }
