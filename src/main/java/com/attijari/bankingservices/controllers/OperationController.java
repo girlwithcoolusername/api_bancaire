@@ -61,29 +61,29 @@ public class OperationController {
         List<Compte> accounts = compteService.getAccountByUserIdAndAccountType(m.getUserId(), m.getCompte().getTypeCompte());
         if (!accounts.isEmpty()) {
             if (accounts.size() > 1) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide account number.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Plusieurs comptes sont de même type. Veuillez spécifier le numéro de compte!");
             }
             OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getCategorieOperation());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Operation added successfully.");
+            return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type!");
         }
 
     }
 
     @PostMapping("/addByAccountTypeBeneficiaryNames")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification des noms de bénéficiare et le type de compte")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification des noms de bénéficiaire et le type de compte")
     public ResponseEntity<String> addTransactionByAccountTypeAndBenefeciaryNames(@RequestBody ManageUserOperations m) {
         List<Beneficiaire> beneficiaries = beneficiaireService.getBeneficiaryByUserIdNames(m.getUserId(), m.getBeneficiaire().getPrenom(), m.getBeneficiaire().getNom());
         if (!beneficiaries.isEmpty()) {
             if (beneficiaries.size() > 1) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide beneficiary RIB too many beneficiaries with the same name .");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vous avez plusieurs bénéficiaires avec le même nom. Veuillez préciser le RIB du bénéficiaire!");
             }
             Beneficiaire beneficiaire = beneficiaries.get(0);
             m.setBeneficiaire(beneficiaire);
             return addTransactionByAccountType(m);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Beneficiary not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire n'a pas été trouvé. Veuillez en ajouter un pour effectuer la transaction!");
         }
     }
 
@@ -93,25 +93,25 @@ public class OperationController {
         Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getCompte().getNumeroCompte());
         if (account.isPresent()) {
             OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getCategorieOperation());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Operation added successfully.");
+            return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
         }
 
     }
     @PostMapping("/addByAccountNumBeneficiaryNames")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification des noms de bénéficiare et le numéro de compte")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification des noms de bénéficiaire et le numéro de compte")
     public ResponseEntity<String> addTransactionByAccountNumAndBenefeciaryNames(@RequestBody ManageUserOperations m) {
         List<Beneficiaire> beneficiaries = beneficiaireService.getBeneficiaryByUserIdNames(m.getUserId(), m.getBeneficiaire().getPrenom(), m.getBeneficiaire().getNom());
         if (!beneficiaries.isEmpty()) {
             if (beneficiaries.size() > 1) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide beneficiary RIB too many beneficiaries with the same name .");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le RIB du bénéficiaire car vous avez plusieurs bénéficiaires avec le même nom!");
             }
             Beneficiaire beneficiaire = beneficiaries.get(0);
             m.setBeneficiaire(beneficiaire);
             return addTransactionByAccountNum(m);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Beneficiary not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire ne correspond à ces noms. Veuillez en ajouter un pour effectuer la transaction!");
         }
     }
 

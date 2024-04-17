@@ -11,6 +11,7 @@ public interface CompteService {
 
     List<Compte> getAccountByUserID(Long userId);
     List<Compte> getAccountByUserIdAndAccountType(Long userID,String accountType);
+
     Optional<Compte> getAccountByUserIdAndAccountNum(Long userID, String accountNum);
 
     List<Compte> getAccountsByUserIdAndEntities(Long userId, Map<String,Object> entitiesDict);

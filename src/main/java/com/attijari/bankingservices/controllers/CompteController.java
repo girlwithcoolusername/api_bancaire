@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/comptes")
@@ -36,6 +37,15 @@ public class CompteController {
         List<Compte> accounts = compteService.getAccountByUserIdAndAccountType(userId,typeCompte);
         if (!accounts.isEmpty()) {
             return ResponseEntity.ok(accounts);
+        }
+        return ResponseEntity.notFound().build();
+    }
+    @GetMapping("/userNumCompte/{userId}/{numeroCompte}")
+    @Operation(summary="Méthode pour récupérer les comptes par id d'utilisateur et numéro de compte")
+    public ResponseEntity<Optional<Compte>> getAccountByUserIdAndAccountNum(@PathVariable Long userId,@PathVariable String numeroCompte) {
+        Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(userId,numeroCompte);
+        if (account.isPresent()) {
+            return ResponseEntity.ok(account);
         }
         return ResponseEntity.notFound().build();
     }

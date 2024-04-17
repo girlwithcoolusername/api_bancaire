@@ -31,7 +31,7 @@ public class PlafondServiceImpl implements PlafondService {
     }
 
     @Override
-    public void updateCardLimitByCardNum(Long cardNum, BigDecimal limit, String typeLimit, Optional<Timestamp> duration) {
+    public void updateCardLimitByCardNum(Long cardNum, BigDecimal limit, String typeLimit, Optional<Timestamp> duration,String status) {
         Optional<Carte> card = carteRepository.findByNumeroCarte(cardNum);
         if (card.isPresent()) {
             Carte carte = card.get();
@@ -39,8 +39,17 @@ public class PlafondServiceImpl implements PlafondService {
             if (!existingPlafond.isEmpty()) {
                 for (Plafond plafond : existingPlafond) {
                     if (plafond.getTypePlafond().equals(typeLimit)) {
+                        BigDecimal initialLimit = plafond.getMontantPlafond();
                         plafond.setTypePlafond(typeLimit);
-                        plafond.setMontantPlafond(limit);
+                        if(status.equals("add"))
+                        {
+                            BigDecimal new_limit = limit.add(initialLimit);
+                            plafond.setMontantPlafond(new_limit);
+                        }
+                        else{
+                            BigDecimal new_limit = limit.subtract(initialLimit);
+                            plafond.setMontantPlafond(new_limit);
+                        }
                         plafond.setPeriode("Par jour");
                         plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
                         plafond.setCarte(carte);
@@ -91,7 +100,7 @@ public class PlafondServiceImpl implements PlafondService {
 
 
     @Override
-    public void updateCardLimitByCardType(Long userID, String cardType, BigDecimal limit, String typeLimit, Optional<Timestamp> duration) {
+    public void updateCardLimitByCardType(Long userID, String cardType, BigDecimal limit, String typeLimit, Optional<Timestamp> duration,String status) {
         List<Carte> cartes = carteRepository.findByTypeCarte(cardType);
         Carte carte = cartes.get(0);
         if (carte != null) {
@@ -99,9 +108,17 @@ public class PlafondServiceImpl implements PlafondService {
             if (!existingPlafond.isEmpty()) {
                 for (Plafond plafond : existingPlafond) {
                     if (plafond.getTypePlafond().equals(typeLimit)) {
+                        BigDecimal initialLimit = plafond.getMontantPlafond();
                         plafond.setTypePlafond(typeLimit);
-                        plafond.setMontantPlafond(limit);
-                        plafond.setPeriode("Par jour");
+                        if(status.equals("add"))
+                        {
+                            BigDecimal new_limit = limit.add(initialLimit);
+                            plafond.setMontantPlafond(new_limit);
+                        }
+                        else{
+                            BigDecimal new_limit = limit.subtract(initialLimit);
+                            plafond.setMontantPlafond(new_limit);
+                        }                        plafond.setPeriode("Par jour");
                         plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
                         plafond.setCarte(carte);
                         if (duration.isEmpty()) {

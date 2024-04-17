@@ -37,12 +37,12 @@ public class PlafondController {
         List<Carte> cartes = carteService.getCardByUserIdAndType(m.getUserId(), m.getTypeCarte());
         if (!cartes.isEmpty()) {
             if (cartes.size() > 1) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a single card number.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vous disposez de plusieurs cartes de même type. Veuillez spécifier laquelle en précisant son numéro!");
             }
-            plafondService.updateCardLimitByCardType(m.getUserId(), m.getTypeCarte(),m.getPlafond(), m.getTypePlafond(),m.getDuration());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Limit card updated successfully.");
+            plafondService.updateCardLimitByCardType(m.getUserId(), m.getTypeCarte(),m.getPlafond(), m.getTypePlafond(),m.getDuration(),m.getStatut());
+            return ResponseEntity.status(HttpStatus.CREATED).body("Le plafond de la carte a été modifié avec succès!");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Card not found for the given user and account type.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucune carte ne correspond à ce type de compte!");
         }
     }
     @PostMapping("/updateByCardNum")
@@ -50,10 +50,10 @@ public class PlafondController {
     public ResponseEntity<String> updateCardLimitByCardNum(@RequestBody ManageUserCardLimits m) {
         Optional<Carte> cartes = carteService.getCardByNum(m.getNumeroCarte());
         if (cartes.isPresent()) {
-            plafondService.updateCardLimitByCardNum(m.getNumeroCarte(),m.getPlafond(), m.getTypePlafond(),m.getDuration());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Limit card updated successfully.");
+            plafondService.updateCardLimitByCardNum(m.getNumeroCarte(),m.getPlafond(), m.getTypePlafond(),m.getDuration(),m.getStatut());
+            return ResponseEntity.status(HttpStatus.CREATED).body("Le plafond de la carte a été modifié avec succès!");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Card not found for the given number.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucune carte ne correspond au numéro prononcé.");
         }
     }
 

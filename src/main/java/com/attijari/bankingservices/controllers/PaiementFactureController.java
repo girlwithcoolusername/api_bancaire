@@ -43,15 +43,15 @@ public class PaiementFactureController {
             List<Compte> accounts = compteService.getAccountByUserIdAndAccountType(m.getUserId(), m.getTypeCompte());
             if (!accounts.isEmpty()) {
                 if (accounts.size() > 1) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a single account number.");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le numéro de compte car vous disposez de plusieurs comptes du même type.");
                 }
                 paiementFactureService.addInvoiceTransactionByAccountType(m.getUserId(), m.getNumeroFacture(), m.getTypeCompte());
-                return ResponseEntity.status(HttpStatus.CREATED).body("Invoice Payment added successfully.");
+                return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found for the given user and account type.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
             }
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invoice not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Numéro de facture introuvable. Veuillez le vérifier et le préciser à nouveau.");
         }
     }
     @PostMapping("/addInvoiceByAccountNum")
@@ -62,14 +62,14 @@ public class PaiementFactureController {
             Optional<Compte> accounts = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getNumeroCompte());
             if (accounts.isPresent()) {
                 paiementFactureService.addInvoiceTransactionByAccountNum(m.getNumeroFacture(), m.getNumeroCompte());
-                return ResponseEntity.status(HttpStatus.CREATED).body("Invoice Payment added successfully.");
+                return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
             }
             else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type de compte!");
             }
         }
         else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invoice not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Numéro de facture introuvable. Veuillez le vérifier et le préciser à nouveau.");
         }
 
     }

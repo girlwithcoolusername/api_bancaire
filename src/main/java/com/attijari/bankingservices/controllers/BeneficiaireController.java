@@ -24,7 +24,7 @@ public class BeneficiaireController {
     @Operation(summary="Méthode pour ajouter un bénéficiaires")
     public ResponseEntity<String> addBeneficiary(@RequestBody ManageUserBeneficiaires manageUserBeneficiaires) {
         beneficiaireService.addBeneficiary(manageUserBeneficiaires.getUserId(), manageUserBeneficiaires.getBeneficiaire().getRib(), manageUserBeneficiaires.getBeneficiaire().getPrenom(), manageUserBeneficiaires.getBeneficiaire().getNom(), manageUserBeneficiaires.getBeneficiaire().getTypeBeneficiaire());
-        return ResponseEntity.status(HttpStatus.CREATED).body("Beneficiary added successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Votre bénéficiaire a été ajouté avec succès!");
     }
 
     @PostMapping("/user/names")
@@ -36,6 +36,15 @@ public class BeneficiaireController {
         }
         return ResponseEntity.notFound().build();
     }
+    @PostMapping("/user/rib")
+    @Operation(summary="Méthode pour récupérer les bénéficiaires par id d'utilisateur et rib du bénéficiaire")
+    public ResponseEntity<Beneficiaire> getBeneficiaryByUserIdAndRib(@RequestBody ManageUserBeneficiaires manager) {
+         Beneficiaire beneficiary = beneficiaireService.getBeneficiaryByUserIdAndRib(manager.getUserId(), manager.getBeneficiaire().getRib());
+        if (beneficiary!=null) {
+            return ResponseEntity.ok(beneficiary);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
 
     @PutMapping("/update/rib")
@@ -44,7 +53,7 @@ public class BeneficiaireController {
         Beneficiaire beneficiaire = beneficiaireService.getBeneficiaryByUserIdAndRib(manager.getUserId(), manager.getOldRib());
         if (beneficiaire != null) {
             beneficiaireService.updateBeneficiaryByRib(manager.getUserId(), manager.getOldRib(), manager.getNewRib());
-            return ResponseEntity.ok("Beneficiary rib updated successfully.");
+            return ResponseEntity.ok("Le RIB du bénéficiaire a été mis à jour avec succès!");
         }
         return ResponseEntity.notFound().build();
     }
@@ -54,12 +63,12 @@ public class BeneficiaireController {
     public ResponseEntity<String> updateBeneficiaryByNames(@RequestBody ManageUserBeneficiaires manager) {
         List<Beneficiaire> beneficiaires = beneficiaireService.getBeneficiaryByUserIdNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
         if (beneficiaires.size() > 1) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The user has more than one beneficiary with this name");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vous avez plus qu'un bénéficiaire avec le même nom!");
         } else if (beneficiaires.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No beneficiary found with the given name");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vous n'avez pas de bénéficiaires avec ces noms!");
         } else {
             beneficiaireService.updateBeneficiaryByNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom(), manager.getNewRib());
-            return ResponseEntity.ok("Beneficiary names updated successfully.");
+            return ResponseEntity.ok("Votre bénéficiaire a été mis à jour avec succès!");
         }
     }
 
@@ -68,12 +77,12 @@ public class BeneficiaireController {
     public ResponseEntity<String> deleteBeneficiaryByNames(@RequestBody ManageUserBeneficiaires manager) {
         List<Beneficiaire> beneficiares = beneficiaireService.getBeneficiaryByUserIdNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
         if (beneficiares.size() > 1) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The user has more than one beneficiary with this name");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vous avez plus qu'un bénéficiaire avec le même nom!");
         } else if (beneficiares.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No beneficiary found with the given name");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vous n'avez pas de bénéficiaires avec ces noms!");
         } else {
             beneficiaireService.deleteBeneficiaryByNames(manager.getUserId(), manager.getBeneficiaire().getPrenom(), manager.getBeneficiaire().getNom());
-            return ResponseEntity.ok("Beneficiary deleted successfully.");
+            return ResponseEntity.ok("Votre bénéficiaire a été supprimé avec succès!");
         }
     }
 
@@ -83,7 +92,7 @@ public class BeneficiaireController {
         Beneficiaire beneficiaire = beneficiaireService.getBeneficiaryByUserIdAndRib(manager.getUserId(), manager.getBeneficiaire().getRib());
         if (beneficiaire != null) {
             beneficiaireService.deleteBeneficiaryByRib(manager.getUserId(), manager.getBeneficiaire().getRib());
-            return ResponseEntity.ok("Beneficiary deleted successfully.");
+            return ResponseEntity.ok("Votre bénéficiaire a été supprimé avec succès!");
         }
         return ResponseEntity.notFound().build();
     }

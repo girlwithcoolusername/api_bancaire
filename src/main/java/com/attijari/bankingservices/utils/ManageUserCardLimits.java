@@ -18,6 +18,7 @@ public class ManageUserCardLimits {
     BigDecimal plafond;
     String typePlafond;
     Optional<Timestamp> duration;
+    String statut;
 
 }
 

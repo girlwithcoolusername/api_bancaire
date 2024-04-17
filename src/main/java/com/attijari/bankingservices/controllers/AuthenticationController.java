@@ -20,7 +20,12 @@ public class AuthenticationController {
         this.authService = authService;
     }
 
-
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(
+            @RequestBody AuthCredentials request
+    ) {
+        return ResponseEntity.ok(authService.register(request));
+    }
     @PostMapping("/login")
     @Operation(summary = "Méthode pour récupérer le token pour un utilisateur donné de l'API")
     public ResponseEntity<AuthenticationResponse> login(
