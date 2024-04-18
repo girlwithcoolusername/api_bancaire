@@ -55,15 +55,15 @@ public class OperationController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/addByAccountType")
+    @PostMapping("/addByAccountTypeAndRib")
     @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification du type de compte")
-    public ResponseEntity<String> addTransactionByAccountType(@RequestBody ManageUserOperations m) {
+    public ResponseEntity<String> addTransactionByAccountTypeAndRib(@RequestBody ManageUserOperations m) {
         List<Compte> accounts = compteService.getAccountByUserIdAndAccountType(m.getUserId(), m.getCompte().getTypeCompte());
         if (!accounts.isEmpty()) {
             if (accounts.size() > 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Plusieurs comptes sont de même type. Veuillez spécifier le numéro de compte!");
             }
-            OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getCategorieOperation());
+            OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
             return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type!");
@@ -81,18 +81,18 @@ public class OperationController {
             }
             Beneficiaire beneficiaire = beneficiaries.get(0);
             m.setBeneficiaire(beneficiaire);
-            return addTransactionByAccountType(m);
+            return addTransactionByAccountTypeAndRib(m);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire n'a pas été trouvé. Veuillez en ajouter un pour effectuer la transaction!");
         }
     }
 
-    @PostMapping("/addByAccountNum")
+    @PostMapping("/addByAccountNumAndRib")
     @io.swagger.v3.oas.annotations.Operation(summary = "Méthode pour ajouter une transaction par spécification du numéro de compte")
-    public ResponseEntity<String> addTransactionByAccountNum(@RequestBody ManageUserOperations m) {
+    public ResponseEntity<String> addTransactionByAccountNumAndRib(@RequestBody ManageUserOperations m) {
         Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getCompte().getNumeroCompte());
         if (account.isPresent()) {
-            OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getCategorieOperation());
+            OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
             return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
@@ -109,7 +109,7 @@ public class OperationController {
             }
             Beneficiaire beneficiaire = beneficiaries.get(0);
             m.setBeneficiaire(beneficiaire);
-            return addTransactionByAccountNum(m);
+            return addTransactionByAccountNumAndRib(m);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire ne correspond à ces noms. Veuillez en ajouter un pour effectuer la transaction!");
         }
