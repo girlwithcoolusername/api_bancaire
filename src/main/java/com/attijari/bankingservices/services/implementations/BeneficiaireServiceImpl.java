@@ -83,9 +83,15 @@ public class BeneficiaireServiceImpl implements BeneficiaireService {
 
     @Override
     public void deleteBeneficiaryByRib(Long userId, String rib) {
-        Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(userId, rib);
-        if (beneficiaire != null) {
-            beneficiaireRepository.delete(beneficiaire);
+        Client client = utilisateurRepository.findById(userId)
+                .map(Utilisateur::getClient)
+                .orElse(null);
+        if(client != null){
+            Long clientId = client.getIdClient();
+            Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(clientId, rib);
+            if (beneficiaire != null) {
+                beneficiaireRepository.delete(beneficiaire);
+            }
         }
     }
 

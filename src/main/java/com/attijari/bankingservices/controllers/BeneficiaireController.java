@@ -55,7 +55,7 @@ public class BeneficiaireController {
             beneficiaireService.updateBeneficiaryByRib(manager.getUserId(), manager.getOldRib(), manager.getNewRib());
             return ResponseEntity.ok("Le RIB du bénéficiaire a été mis à jour avec succès!");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aucun bénéficiaire ne correspond à ce RIB.");
     }
 
     @PutMapping("/update/names")
@@ -94,6 +94,6 @@ public class BeneficiaireController {
             beneficiaireService.deleteBeneficiaryByRib(manager.getUserId(), manager.getBeneficiaire().getRib());
             return ResponseEntity.ok("Votre bénéficiaire a été supprimé avec succès!");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aucun bénéficiaire ne correspond à ce RIB.");
     }
 }
