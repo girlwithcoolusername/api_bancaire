@@ -18,4 +18,5 @@ public interface BeneficiaireRepository extends JpaRepository<Beneficiaire, Long
 
 
 
+
 }

@@ -66,11 +66,18 @@ public class BeneficiaireServiceImpl implements BeneficiaireService {
 
     @Override
     public void updateBeneficiaryByRib(Long userId, String oldRib, String newRib) {
-        Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(userId, oldRib);
-        if (beneficiaire != null) {
-            beneficiaire.setRib(newRib);
-            beneficiaireRepository.save(beneficiaire);
+        Client client = utilisateurRepository.findById(userId)
+                .map(Utilisateur::getClient)
+                .orElse(null);
+        if(client!=null){
+            Long clientId = client.getIdClient();
+            Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(clientId, oldRib);
+            if (beneficiaire != null) {
+                beneficiaire.setRib(newRib);
+                beneficiaireRepository.save(beneficiaire);
+            }
         }
+
     }
 
     @Override
