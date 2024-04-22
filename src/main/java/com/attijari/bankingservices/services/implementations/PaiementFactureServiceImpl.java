@@ -39,6 +39,10 @@ public class PaiementFactureServiceImpl implements PaiementFactureService {
                 for(Compte compte: comptes){
                     if(compte.getTypeCompte().equals(accountType))
                     {
+                        BigDecimal balance = compte.getSolde();
+                        BigDecimal newBalance = balance.subtract(facture.get().getMontant());
+                        compte.setSolde(newBalance);
+                        compteRepository.save(compte);
                         paiementFacture.setFacture(facture.get());
                         paiementFacture.setDatePaiement(new Timestamp(System.currentTimeMillis()));
                         paiementFacture.setCompte(compte);
@@ -63,6 +67,10 @@ public class PaiementFactureServiceImpl implements PaiementFactureService {
         if(facture.isPresent())
         {
             Compte compte = compteRepository.findByNumeroCompte(accountNum);
+            BigDecimal balance = compte.getSolde();
+            BigDecimal newBalance = balance.subtract(facture.get().getMontant());
+            compte.setSolde(newBalance);
+            compteRepository.save(compte);
             paiementFacture.setFacture(facture.get());
             paiementFacture.setDatePaiement(new Timestamp(System.currentTimeMillis()));
             paiementFacture.setCompte(compte);

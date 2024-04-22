@@ -103,7 +103,7 @@ public class CarteController {
             if (carte.getStatutCarte().equals("opposée")) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cette carte est déjà opposée!");
             } else {
-                carteService.opposeCardByCardNum(manager.getUserId(), manager.getCarte().getNumeroCarte(), manager.getRaisonsOpposition());
+                carteService.opposeCardByCardNum(manager.getUserId(), manager.getCarte().getNumeroCarte(), manager.getCarte().getRaisonsOpposition());
                 return ResponseEntity.status(HttpStatus.CREATED).body("La carte est opposée avec succès!");
             }
         } else {
@@ -121,7 +121,7 @@ public class CarteController {
                 if (status.equals("opposée")) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cette carte est déjà opposée!");
                 }
-                carteService.opposeCardByCardType(manager.getUserId(), manager.getCarte().getTypeCarte(), manager.getRaisonsOpposition());
+                carteService.opposeCardByCardType(manager.getUserId(), manager.getCarte().getTypeCarte(), manager.getCarte().getRaisonsOpposition());
                 return ResponseEntity.status(HttpStatus.CREATED).body("La carte est opposée avec succès!");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez spécifier le numéro de la carte car vous avez plusieurs cartes de même type!");

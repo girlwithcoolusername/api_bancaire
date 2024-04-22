@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,8 +64,18 @@ public class OperationController {
             if (accounts.size() > 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Plusieurs comptes sont de même type. Veuillez spécifier le numéro de compte!");
             }
-            OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
-            return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+            else{
+                BigDecimal balance = accounts.get(0).getSolde();
+                BigDecimal amount = m.getOperation().getMontant();
+                int comparisonResult = balance.compareTo(amount);
+                if (comparisonResult < 0) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+                }
+                else{
+                    OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
+                    return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+                }
+            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type!");
         }
@@ -92,8 +103,16 @@ public class OperationController {
     public ResponseEntity<String> addTransactionByAccountNumAndRib(@RequestBody ManageUserOperations m) {
         Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getCompte().getNumeroCompte());
         if (account.isPresent()) {
-            OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
-            return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+            BigDecimal balance = account.get().getSolde();
+            BigDecimal amount = m.getOperation().getMontant();
+            int comparisonResult = balance.compareTo(amount);
+            if (comparisonResult < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+            }
+            else {
+                OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
+                return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
         }

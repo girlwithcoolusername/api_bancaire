@@ -1,5 +1,7 @@
 package com.attijari.bankingservices.utils;
 
+import com.attijari.bankingservices.models.Carte;
+import com.attijari.bankingservices.models.Plafond;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -13,10 +15,8 @@ import java.util.Optional;
 @NoArgsConstructor
 public class ManageUserCardLimits {
     Long userId;
-    Long numeroCarte;
-    String typeCarte;
-    BigDecimal plafond;
-    String typePlafond;
+    Carte carte;
+    Plafond plafond;
     Optional<Timestamp> duration;
     String statut;
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,8 +46,18 @@ public class PaiementFactureController {
                 if (accounts.size() > 1) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le numéro de compte car vous disposez de plusieurs comptes du même type.");
                 }
-                paiementFactureService.addInvoiceTransactionByAccountType(m.getUserId(), m.getNumeroFacture(), m.getTypeCompte());
-                return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                else{
+                    BigDecimal balance = accounts.get(0).getSolde();
+                    BigDecimal amount = invoice.get().getMontant();
+                    int comparisonResult = balance.compareTo(amount);
+                    if (comparisonResult < 0) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
+                    }
+                    else {
+                        paiementFactureService.addInvoiceTransactionByAccountType(m.getUserId(), m.getNumeroFacture(), m.getTypeCompte());
+                        return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                    }
+                }
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
             }
@@ -61,8 +72,16 @@ public class PaiementFactureController {
         if(invoice.isPresent()){
             Optional<Compte> accounts = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getNumeroCompte());
             if (accounts.isPresent()) {
-                paiementFactureService.addInvoiceTransactionByAccountNum(m.getNumeroFacture(), m.getNumeroCompte());
-                return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                BigDecimal balance = accounts.get().getSolde();
+                BigDecimal amount = invoice.get().getMontant();
+                int comparisonResult = balance.compareTo(amount);
+                if (comparisonResult < 0) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
+                }
+                else{
+                    paiementFactureService.addInvoiceTransactionByAccountNum(m.getNumeroFacture(), m.getNumeroCompte());
+                    return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                }
             }
             else{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type de compte!");

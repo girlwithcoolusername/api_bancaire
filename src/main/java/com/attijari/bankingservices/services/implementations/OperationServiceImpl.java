@@ -63,11 +63,16 @@ public class OperationServiceImpl implements OperationService {
         Operation operation = new Operation();
         if (user.isPresent()) {
             Long clientId = user.get().getClient().getIdClient();
-            List<Compte> comptes = compteRepository.findByClientId(clientId);
+            List<Compte> accounts = compteRepository.findByClientId(clientId);
             Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(clientId, ribBeneficiare);
-            if (comptes.get(0).getTypeCompte().equals(accountType)) {
+            Compte account = accounts.get(0);
+            if (account.getTypeCompte().equals(accountType)) {
+                BigDecimal balance = account.getSolde();
+                BigDecimal newBalance = balance.subtract(amount);
+                account.setSolde(newBalance);
+                compteRepository.save(account);
                 operation.setTypeOperation(type);
-                operation.setCompte(comptes.get(0));
+                operation.setCompte(accounts.get(0));
                 operation.setDateOperation(new Timestamp(System.currentTimeMillis()));
                 operation.setMontant(amount);
                 operation.setBeneficiaire(beneficiaire);
@@ -85,12 +90,16 @@ public class OperationServiceImpl implements OperationService {
         Operation operation = new Operation();
         if (user.isPresent()) {
             Long clientId = user.get().getClient().getIdClient();
-            List<Compte> comptes = compteRepository.findByClientId(clientId);
+            List<Compte> accounts = compteRepository.findByClientId(clientId);
             Beneficiaire beneficiaire = beneficiaireRepository.findByClientIdAndRib(clientId, ribBeneficiare);
-            for (Compte compte : comptes) {
-                if (compte.getNumeroCompte().equals(accountNum)) {
+            for (Compte account : accounts) {
+                if (account.getNumeroCompte().equals(accountNum)) {
+                    BigDecimal balance = account.getSolde();
+                    BigDecimal newBalance = balance.subtract(amount);
+                    account.setSolde(newBalance);
+                    compteRepository.save(account);
                     operation.setTypeOperation(type);
-                    operation.setCompte(comptes.get(0));
+                    operation.setCompte(accounts.get(0));
                     operation.setDateOperation(new Timestamp(System.currentTimeMillis()));
                     operation.setMontant(amount);
                     operation.setBeneficiaire(beneficiaire);
