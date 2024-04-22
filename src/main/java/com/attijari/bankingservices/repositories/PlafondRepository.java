@@ -12,6 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface PlafondRepository extends JpaRepository<Plafond,Long> {
-    @Query("SELECT p FROM Plafond p WHERE p.carte = :carte")
-    List<Plafond> findByCarte(@Param("carte") Carte carte);
+    @Query("SELECT p FROM Plafond p WHERE p.carte.idCarte = :idCarte")
+    List<Plafond> findByCarte(@Param("idCarte") Long idCarte);
 }

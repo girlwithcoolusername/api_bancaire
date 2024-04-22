@@ -31,7 +31,7 @@ public class PlafondController {
         this.carteService = carteService;
     }
 
-    @PostMapping("/updateByCardType")
+    @PutMapping("/updateByCardType")
     @Operation(summary = "Méthode pour modifier le plafond d'une carte d'un utilisateur par type de carte")
     public ResponseEntity<String> updateCardLimitByCardType(@RequestBody ManageUserCardLimits m) {
         List<Carte> cartes = carteService.getCardByUserIdAndType(m.getUserId(), m.getCarte().getTypeCarte());
@@ -45,7 +45,7 @@ public class PlafondController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucune carte ne correspond à ce type de compte!");
         }
     }
-    @PostMapping("/updateByCardNum")
+    @PutMapping("/updateByCardNum")
     @Operation(summary = "Méthode pour modifier le plafond d'une carte d'un utilisateur par numéro de carte")
     public ResponseEntity<String> updateCardLimitByCardNum(@RequestBody ManageUserCardLimits m) {
         Optional<Carte> cartes = carteService.getCardByNum(m.getCarte().getNumeroCarte());

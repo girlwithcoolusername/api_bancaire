@@ -31,65 +31,45 @@ public class PlafondServiceImpl implements PlafondService {
     }
 
     @Override
-    public void updateCardLimitByCardNum(Long cardNum, BigDecimal limit, String typeLimit, Optional<Timestamp> duration,String status) {
+    public void updateCardLimitByCardNum(Long cardNum, BigDecimal limit, String typeLimit, Optional<Timestamp> duration, String status) {
         Optional<Carte> card = carteRepository.findByNumeroCarte(cardNum);
         if (card.isPresent()) {
             Carte carte = card.get();
-            List<Plafond> existingPlafond = plafondRepository.findByCarte(carte);
-            if (!existingPlafond.isEmpty()) {
-                for (Plafond plafond : existingPlafond) {
-                    if (plafond.getTypePlafond().equals(typeLimit)) {
-                        BigDecimal initialLimit = plafond.getMontantPlafond();
-                        plafond.setTypePlafond(typeLimit);
-                        if(status.equals("add"))
-                        {
-                            BigDecimal new_limit = limit.add(initialLimit);
-                            plafond.setMontantPlafond(new_limit);
-                        }
-                        else{
-                            BigDecimal new_limit = limit.subtract(initialLimit);
-                            plafond.setMontantPlafond(new_limit);
-                        }
-                        plafond.setPeriode("Par jour");
-                        plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
-                        plafond.setCarte(carte);
-                        if (duration.isEmpty()) {
-                            plafond.setEstPermanent(true);
-                            plafond.setDateExpiration(null);
-                        } else {
-                            plafond.setEstPermanent(false);
-                            plafond.setDateExpiration(duration.get());
-                        }
-                        plafondRepository.save(plafond);
-                    } else {
-                        Plafond newPlafond = new Plafond();
-                        newPlafond.setTypePlafond(typeLimit);
-                        newPlafond.setMontantPlafond(limit);
-                        newPlafond.setPeriode("Par jour");
-                        newPlafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
-                        newPlafond.setCarte(carte);
-                        if (duration.isEmpty()) {
-                            newPlafond.setEstPermanent(true);
-                        } else {
-                            newPlafond.setEstPermanent(false);
-                            newPlafond.setDateExpiration(duration.get());
-                        }
-                        plafondRepository.save(newPlafond);
-                    }
-                }
+            List<Plafond> existingPlafonds = plafondRepository.findByCarte(carte.getIdCarte());
+            boolean foundMatchingType = false;
 
-            } else {
+            for (Plafond plafond : existingPlafonds) {
+                if (plafond.getTypePlafond().equals(typeLimit)) {
+                    foundMatchingType = true;
+
+                    BigDecimal newLimit = (status.equals("add")) ? plafond.getMontantPlafond().add(limit) :  plafond.getMontantPlafond().compareTo(limit)<0 ? limit :plafond.getMontantPlafond().subtract(limit);
+                    plafond.setMontantPlafond(newLimit);
+                    plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
+                    if (duration.isPresent()) {
+                        plafond.setEstPermanent(false);
+                        plafond.setDateExpiration(duration.get());
+                    } else {
+                        plafond.setEstPermanent(true);
+                        plafond.setDateExpiration(null);
+                    }
+                    plafondRepository.save(plafond);
+                    break;
+                }
+            }
+
+            if (!foundMatchingType) {
                 Plafond newPlafond = new Plafond();
                 newPlafond.setTypePlafond(typeLimit);
                 newPlafond.setMontantPlafond(limit);
                 newPlafond.setPeriode("Par jour");
                 newPlafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
                 newPlafond.setCarte(carte);
-                if (duration.isEmpty()) {
-                    newPlafond.setEstPermanent(true);
-                } else {
+                if (duration.isPresent()) {
                     newPlafond.setEstPermanent(false);
                     newPlafond.setDateExpiration(duration.get());
+                } else {
+                    newPlafond.setEstPermanent(true);
+                    newPlafond.setDateExpiration(null);
                 }
                 plafondRepository.save(newPlafond);
             }
@@ -100,69 +80,50 @@ public class PlafondServiceImpl implements PlafondService {
 
 
     @Override
-    public void updateCardLimitByCardType(Long userID, String cardType, BigDecimal limit, String typeLimit, Optional<Timestamp> duration,String status) {
+    public void updateCardLimitByCardType(Long userID, String cardType, BigDecimal limit, String typeLimit, Optional<Timestamp> duration, String status) {
         List<Carte> cartes = carteRepository.findByTypeCarte(cardType);
-        Carte carte = cartes.get(0);
-        if (carte != null) {
-            List<Plafond> existingPlafond = plafondRepository.findByCarte(carte);
-            if (!existingPlafond.isEmpty()) {
-                for (Plafond plafond : existingPlafond) {
-                    if (plafond.getTypePlafond().equals(typeLimit)) {
-                        BigDecimal initialLimit = plafond.getMontantPlafond();
-                        plafond.setTypePlafond(typeLimit);
-                        if(status.equals("add"))
-                        {
-                            BigDecimal new_limit = limit.add(initialLimit);
-                            plafond.setMontantPlafond(new_limit);
-                        }
-                        else{
-                            BigDecimal new_limit = limit.subtract(initialLimit);
-                            plafond.setMontantPlafond(new_limit);
-                        }                        plafond.setPeriode("Par jour");
-                        plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
-                        plafond.setCarte(carte);
-                        if (duration.isEmpty()) {
-                            plafond.setEstPermanent(true);
-                            plafond.setDateExpiration(null);
-                        } else {
-                            plafond.setEstPermanent(false);
-                            plafond.setDateExpiration(duration.get());
-                        }
-                        plafondRepository.save(plafond);
-                    } else {
-                        Plafond newPlafond = new Plafond();
-                        newPlafond.setTypePlafond(typeLimit);
-                        newPlafond.setMontantPlafond(limit);
-                        newPlafond.setPeriode("Par jour");
-                        newPlafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
-                        newPlafond.setCarte(carte);
-                        if (duration.isEmpty()) {
-                            newPlafond.setEstPermanent(true);
-                        } else {
-                            newPlafond.setEstPermanent(false);
-                            newPlafond.setDateExpiration(duration.get());
-                        }
-                        plafondRepository.save(newPlafond);
-                    }
-                }
+        if (!cartes.isEmpty()) {
+            Carte carte = cartes.get(0); // Supposant qu'on traite avec la première carte trouvée du type donné
+            List<Plafond> existingPlafonds = plafondRepository.findByCarte(carte.getIdCarte());
+            boolean foundMatchingType = false;
 
-            } else {
+            for (Plafond plafond : existingPlafonds) {
+                if (plafond.getTypePlafond().equals(typeLimit)) {
+                    foundMatchingType = true;
+                    BigDecimal newLimit = (status.equals("add")) ? plafond.getMontantPlafond().add(limit) :  plafond.getMontantPlafond().compareTo(limit)<0 ? limit :plafond.getMontantPlafond().subtract(limit);
+                    plafond.setMontantPlafond(newLimit);
+                    plafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
+                    if (duration.isPresent()) {
+                        plafond.setEstPermanent(false);
+                        plafond.setDateExpiration(duration.get());
+                    } else {
+                        plafond.setEstPermanent(true);
+                        plafond.setDateExpiration(null);
+                    }
+                    plafondRepository.save(plafond);
+                    break;
+                }
+            }
+
+            if (!foundMatchingType) {
+                // Création d'un nouveau plafond si aucun plafond correspondant n'a été trouvé
                 Plafond newPlafond = new Plafond();
                 newPlafond.setTypePlafond(typeLimit);
                 newPlafond.setMontantPlafond(limit);
                 newPlafond.setPeriode("Par jour");
                 newPlafond.setDateDebut(new Timestamp(System.currentTimeMillis()));
                 newPlafond.setCarte(carte);
-                if (duration.isEmpty()) {
-                    newPlafond.setEstPermanent(true);
-                } else {
+                if (duration.isPresent()) {
                     newPlafond.setEstPermanent(false);
                     newPlafond.setDateExpiration(duration.get());
+                } else {
+                    newPlafond.setEstPermanent(true);
+                    newPlafond.setDateExpiration(null);
                 }
                 plafondRepository.save(newPlafond);
             }
         } else {
-            System.out.println("Carte non retrouvée");
+            System.out.println("Aucune carte de ce type n'a été trouvée.");
         }
     }
 }
