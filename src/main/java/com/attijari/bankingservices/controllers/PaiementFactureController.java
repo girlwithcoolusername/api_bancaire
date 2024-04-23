@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/paiement-facture")
-@Tag(name = "Paiements de factures",description = "Gestion des paiements des clients" )
+@Tag(name = "Paiements de factures", description = "Gestion des paiements des clients")
 public class PaiementFactureController {
 
     private final PaiementFactureService paiementFactureService;
@@ -45,17 +45,19 @@ public class PaiementFactureController {
             if (!accounts.isEmpty()) {
                 if (accounts.size() > 1) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le numéro de compte car vous disposez de plusieurs comptes du même type.");
-                }
-                else{
-                    BigDecimal balance = accounts.get(0).getSolde();
-                    BigDecimal amount = invoice.get().getMontant();
-                    int comparisonResult = balance.compareTo(amount);
-                    if (comparisonResult < 0) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
-                    }
-                    else {
-                        paiementFactureService.addInvoiceTransactionByAccountType(m.getUserId(), m.getNumeroFacture(), m.getTypeCompte());
-                        return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                } else {
+                    if (!accounts.get(0).getStatutCompte().equals("fermé")) {
+                        BigDecimal balance = accounts.get(0).getSolde();
+                        BigDecimal amount = invoice.get().getMontant();
+                        int comparisonResult = balance.compareTo(amount);
+                        if (comparisonResult < 0) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
+                        } else {
+                            paiementFactureService.addInvoiceTransactionByAccountType(m.getUserId(), m.getNumeroFacture(), m.getTypeCompte());
+                            return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                        }
+                    } else {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ce compte est fermé, vous ne pouvez pas passer ce paiement!");
                     }
                 }
             } else {
@@ -65,29 +67,32 @@ public class PaiementFactureController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Numéro de facture introuvable. Veuillez le vérifier et le préciser à nouveau.");
         }
     }
+
     @PostMapping("/addInvoiceByAccountNum")
     @Operation(summary = "Méthode pour ajouter le paiement d'une transaction par type de compte bancaire")
     public ResponseEntity<String> addTransactionByAccountNum(@RequestBody ManageUserInvoicePayments m) {
         Optional<Facture> invoice = factureService.getInvoiceByNumber(m.getNumeroFacture());
-        if(invoice.isPresent()){
+        if (invoice.isPresent()) {
             Optional<Compte> accounts = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getNumeroCompte());
             if (accounts.isPresent()) {
-                BigDecimal balance = accounts.get().getSolde();
-                BigDecimal amount = invoice.get().getMontant();
-                int comparisonResult = balance.compareTo(amount);
-                if (comparisonResult < 0) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
+                if(accounts.get().getStatutCompte().equals("fermé")){
+                    BigDecimal balance = accounts.get().getSolde();
+                    BigDecimal amount = invoice.get().getMontant();
+                    int comparisonResult = balance.compareTo(amount);
+                    if (comparisonResult < 0) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer ce paiement!");
+                    } else {
+                        paiementFactureService.addInvoiceTransactionByAccountNum(m.getNumeroFacture(), m.getNumeroCompte());
+                        return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                    }
                 }
                 else{
-                    paiementFactureService.addInvoiceTransactionByAccountNum(m.getNumeroFacture(), m.getNumeroCompte());
-                    return ResponseEntity.status(HttpStatus.CREATED).body("Paiement de facture ajouté avec succès.");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ce compte est fermé, vous ne pouvez pas passer ce paiement!");
                 }
-            }
-            else{
+            } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce type de compte!");
             }
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Numéro de facture introuvable. Veuillez le vérifier et le préciser à nouveau.");
         }
 

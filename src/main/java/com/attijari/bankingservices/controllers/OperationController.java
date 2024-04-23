@@ -65,15 +65,20 @@ public class OperationController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Plusieurs comptes sont de même type. Veuillez spécifier le numéro de compte!");
             }
             else{
-                BigDecimal balance = accounts.get(0).getSolde();
-                BigDecimal amount = m.getOperation().getMontant();
-                int comparisonResult = balance.compareTo(amount);
-                if (comparisonResult < 0) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+                if(accounts.get(0).getStatutCompte().equals("fermé")){
+                    BigDecimal balance = accounts.get(0).getSolde();
+                    BigDecimal amount = m.getOperation().getMontant();
+                    int comparisonResult = balance.compareTo(amount);
+                    if (comparisonResult < 0) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+                    }
+                    else{
+                        OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
+                        return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+                    }
                 }
                 else{
-                    OperationService.addTransactionByAccountType(m.getUserId(), m.getCompte().getTypeCompte(), m.getBeneficiaire().getRib(), m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
-                    return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre compte a été fermé, vous ne pouvez pas effectuer cette transaction!");
                 }
             }
         } else {
@@ -90,9 +95,11 @@ public class OperationController {
             if (beneficiaries.size() > 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vous avez plusieurs bénéficiaires avec le même nom. Veuillez préciser le RIB du bénéficiaire!");
             }
-            Beneficiaire beneficiaire = beneficiaries.get(0);
-            m.setBeneficiaire(beneficiaire);
-            return addTransactionByAccountTypeAndRib(m);
+            else{
+                Beneficiaire beneficiaire = beneficiaries.get(0);
+                m.setBeneficiaire(beneficiaire);
+                return addTransactionByAccountTypeAndRib(m);
+            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire n'a pas été trouvé. Veuillez en ajouter un pour effectuer la transaction!");
         }
@@ -103,15 +110,20 @@ public class OperationController {
     public ResponseEntity<String> addTransactionByAccountNumAndRib(@RequestBody ManageUserOperations m) {
         Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getCompte().getNumeroCompte());
         if (account.isPresent()) {
-            BigDecimal balance = account.get().getSolde();
-            BigDecimal amount = m.getOperation().getMontant();
-            int comparisonResult = balance.compareTo(amount);
-            if (comparisonResult < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+            if(!account.get().getStatutCompte().equals("fermé")){
+                BigDecimal balance = account.get().getSolde();
+                BigDecimal amount = m.getOperation().getMontant();
+                int comparisonResult = balance.compareTo(amount);
+                if (comparisonResult < 0) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre solde courant est insuffisant pour effectuer cette transaction!");
+                }
+                else {
+                    OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
+                    return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+                }
             }
-            else {
-                OperationService.addTransactionByAccountNum(m.getUserId(), m.getCompte().getNumeroCompte(), m.getBeneficiaire().getRib(),m.getOperation().getMontant(), m.getOperation().getMotif(), m.getOperation().getTypeOperation());
-                return ResponseEntity.status(HttpStatus.CREATED).body("La transaction est passée avec succès!");
+            else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Votre compte a été fermé, vous ne pouvez pas effectuer cette transaction!");
             }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun compte ne correspond à ce numéro!");
@@ -126,9 +138,11 @@ public class OperationController {
             if (beneficiaries.size() > 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le RIB du bénéficiaire car vous avez plusieurs bénéficiaires avec le même nom!");
             }
-            Beneficiaire beneficiaire = beneficiaries.get(0);
-            m.setBeneficiaire(beneficiaire);
-            return addTransactionByAccountNumAndRib(m);
+            else{
+                Beneficiaire beneficiaire = beneficiaries.get(0);
+                m.setBeneficiaire(beneficiaire);
+                return addTransactionByAccountNumAndRib(m);
+            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun bénéficiaire ne correspond à ces noms. Veuillez en ajouter un pour effectuer la transaction!");
         }
