@@ -112,6 +112,32 @@ public class AgenceServiceImpl implements AgenceService {
             }
         }
     }
+//    private double[] getLatLonFromAddress(String address) throws IOException {
+//        String formattedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+//        String urlString = "https://maps.googleapis.com/maps/api/geocode/json?address=" + formattedAddress + "&key=AIzaSyC35AEd7iiqLVsbPOog4VUk3VlbuJX61II";
+//
+//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(urlString).openStream()))) {
+//            StringBuilder response = new StringBuilder();
+//            String line;
+//
+//            while ((line = reader.readLine()) != null) {
+//                response.append(line);
+//            }
+//
+//            JSONObject jsonObject = new JSONObject(response.toString());
+//            if (jsonObject.getString("status").equals("OK")) {
+//                JSONArray results = jsonObject.getJSONArray("results");
+//                if (results.length() > 0) {
+//                    JSONObject geometry = results.getJSONObject(0).getJSONObject("geometry");
+//                    JSONObject location = geometry.getJSONObject("location");
+//                    double lat = location.getDouble("lat");
+//                    double lng = location.getDouble("lng");
+//                    return new double[]{lat, lng};
+//                }
+//            }
+//            return null;
+//        }
+//    }
 
     @Override
     public List<Agence> getAgenciesByUserLocation(BigDecimal lat, BigDecimal lng) {

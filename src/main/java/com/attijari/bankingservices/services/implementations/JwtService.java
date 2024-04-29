@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,30 @@ public class JwtService {
     }
 
 
+//    public boolean isValid(String token, UserDetails user) {
+//        String username = extractUsername(token);
+//
+//        boolean validToken = tokenRepository
+//                .findByToken(token)
+//                .map(t -> !t.isLoggedOut())
+//                .orElse(false);
+//
+//        return (username.equals(user.getUsername())) && !isTokenExpired(token) && validToken;
+//    }
     public boolean isValid(String token, UserDetails user) {
-        String username = extractUsername(token);
-
-        boolean validToken = tokenRepository
-                .findByToken(token)
-                .map(t -> !t.isLoggedOut())
-                .orElse(false);
-
-        return (username.equals(user.getUsername())) && !isTokenExpired(token) && validToken;
+        try {
+            return tokenRepository.findByToken(token)
+                    .map(t -> !t.isLoggedOut() && user.getUsername().equals(extractUsername(token)) && !isTokenExpired(token))
+                    .orElse(false);
+        } catch (IncorrectResultSizeDataAccessException e) {
+            // Log this exception and handle accordingly
+//            print("Multiple tokens found for a supposed unique token value: " + token, e);
+            return false;
+        }
     }
+
+
+
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
