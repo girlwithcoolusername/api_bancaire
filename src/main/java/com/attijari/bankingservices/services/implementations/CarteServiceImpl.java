@@ -40,12 +40,15 @@ public class CarteServiceImpl implements CarteService {
         List<Carte> cartes = carteRepository.findAll();
 
         List<Carte> result = new ArrayList<>();
-        for (Compte compte : comptes) {
-            for (Carte carte : cartes) {
-                if (carte.getCompte().getIdCompte().equals(compte.getIdCompte())) {
-                    result.add(carte);
+        if(comptes!=null){
+            for (Compte compte : comptes) {
+                for (Carte carte : cartes) {
+                    if (carte.getCompte().getIdCompte().equals(compte.getIdCompte())) {
+                        result.add(carte);
+                    }
                 }
             }
+            return result;
         }
         return result;
     }
@@ -142,8 +145,12 @@ public class CarteServiceImpl implements CarteService {
                 String existingServices = carte.getServices();
                 List<String> existingServiceList = existingServices != null ? new ArrayList<>(Arrays.asList(existingServices.split(","))) : new ArrayList<>();
                 if (status.equals("enable")) {
-                    existingServiceList.addAll(services);
-                } else if (status.equals("disable")) {
+                    for (String service : services) {
+                        if (!existingServiceList.contains(service)) {
+                            existingServiceList.add(service);
+                        }
+                    }
+                }else if (status.equals("disable")) {
                     existingServiceList.removeAll(services);
                 }
                 String updatedServices = String.join(",", existingServiceList);

@@ -10,7 +10,9 @@ import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,12 +41,14 @@ public class CompteServiceImpl implements CompteService {
                 .filter(compte -> compte.getTypeCompte().equals(accountType))
                 .collect(Collectors.toList());
     }
+
     @Override
     public Optional<Compte> getAccountByUserIdAndAccountNum(Long userID, String accountNum) {
         return getAccountByUserID(userID).stream()
                 .filter(compte -> compte.getNumeroCompte().equals(accountNum))
                 .findFirst();
     }
+
     @Override
     public List<Compte> getAccountsByUserIdAndEntities(Long userId, Map<String, Object> entitiesDict) {
         Client client = utilisateurRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found")).getClient();
@@ -60,18 +64,20 @@ public class CompteServiceImpl implements CompteService {
     }
 
     @Override
-    public Long getAccountUserId(Long idCompte){
+    public Long getAccountUserId(Long idCompte) {
         Compte compte = compteRepository.findById(idCompte).orElse(null);
-        Long idClient = compte.getClient().getIdClient();
-        List<Utilisateur> users = utilisateurRepository.findAll();
-        Long returnId = null;
-        for(Utilisateur user:users){
-            if(user.getClient().getIdClient().equals(idClient)){
-                returnId = user.getIdUser();
+        if (compte != null) {
+            Long idClient = compte.getClient().getIdClient();
+            List<Utilisateur> users = utilisateurRepository.findAll();
+            Long returnId = null;
+            for (Utilisateur user : users) {
+                if (user.getClient().getIdClient().equals(idClient)) {
+                    returnId = user.getIdUser();
+                }
             }
+            return returnId;
         }
-        return returnId;
-
+        return null;
     }
 }
 

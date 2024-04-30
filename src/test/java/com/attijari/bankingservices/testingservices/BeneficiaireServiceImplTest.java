@@ -13,11 +13,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class BeneficiaireServiceImplTest {
@@ -35,6 +36,16 @@ class BeneficiaireServiceImplTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    // Méthode privée pour créer un utilisateur simulé
+    private Utilisateur createMockUser(Long userId, Long clientId) {
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setIdUser(userId);
+        Client client = new Client();
+        client.setIdClient(clientId);
+        utilisateur.setClient(client);
+        return utilisateur;
+    }
+
     @Test
     void testAddBeneficiary_Success() {
         // Mock data
@@ -44,8 +55,7 @@ class BeneficiaireServiceImplTest {
         String lastname = "Doe";
         String type = "TYPE";
 
-        Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setClient(new Client());
+        Utilisateur utilisateur = createMockUser(userId, 1L);
         when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(utilisateur));
 
         // Call the method
@@ -64,12 +74,9 @@ class BeneficiaireServiceImplTest {
         List<Beneficiaire> beneficiaries = new ArrayList<>();
         beneficiaries.add(new Beneficiaire());
 
-        Client client = new Client();
-        client.setIdClient(1L);
-        Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setClient(client);
+        Utilisateur utilisateur = createMockUser(userId, 1L);
         when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(utilisateur));
-        when(beneficiaireRepository.findByClientIdAndNames(client.getIdClient(), firstname, lastname)).thenReturn(beneficiaries);
+        when(beneficiaireRepository.findByClientIdAndNames(utilisateur.getClient().getIdClient(), firstname, lastname)).thenReturn(beneficiaries);
 
         // Call the method
         List<Beneficiaire> result = beneficiaireService.getBeneficiaryByUserIdNames(userId, firstname, lastname);
@@ -78,24 +85,23 @@ class BeneficiaireServiceImplTest {
         assertEquals(beneficiaries, result);
     }
 
-    // Test other methods in a similar manner...
-
     @Test
     void testDeleteBeneficiaryByRib_Success() {
         // Mock data
         Long userId = 1L;
         String rib = "123456789";
 
-        Client client = new Client();
-        client.setIdClient(1L);
-        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(new Utilisateur()));
-        when(beneficiaireRepository.findByClientIdAndRib(client.getIdClient(), rib)).thenReturn(new Beneficiaire());
+        Utilisateur utilisateur = createMockUser(userId, 1L);
+        Beneficiaire beneficiaireToDelete = new Beneficiaire();
+        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(utilisateur));
+        when(beneficiaireRepository.findByClientIdAndRib(utilisateur.getClient().getIdClient(), rib)).thenReturn(beneficiaireToDelete);
 
-        // Call the method
+        // When
         beneficiaireService.deleteBeneficiaryByRib(userId, rib);
 
-        // Verify the result
-        verify(beneficiaireRepository, times(1)).delete(any());
+        // Then
+        // Verify that delete method is called with the expected argument
+        verify(beneficiaireRepository).delete(any(Beneficiaire.class));
     }
 
     @Test
@@ -104,15 +110,16 @@ class BeneficiaireServiceImplTest {
         Long userId = 1L;
         String rib = "123456789";
 
-        Client client = new Client();
-        client.setIdClient(1L);
-        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(new Utilisateur()));
-        when(beneficiaireRepository.findByClientIdAndRib(client.getIdClient(), rib)).thenReturn(new Beneficiaire());
+        Utilisateur utilisateur = createMockUser(userId, 1L);
+        Beneficiaire beneficiary = new Beneficiaire(); // Create a new beneficiary to return
+        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(utilisateur));
+        when(beneficiaireRepository.findByClientIdAndRib(utilisateur.getClient().getIdClient(), rib)).thenReturn(beneficiary); // Return the beneficiary
 
         // Call the method
         Beneficiaire result = beneficiaireService.getBeneficiaryByUserIdAndRib(userId, rib);
 
         // Verify the result
-        assertNotNull(result);
+        assertNotNull(result); // Assert that the result is not null
     }
+
 }

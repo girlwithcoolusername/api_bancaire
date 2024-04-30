@@ -52,6 +52,7 @@ class OperationServiceImplTest {
         user.setIdUser(userId);
         Client client = new Client();
         client.setIdClient(userId);
+        user.setClient(client);
         Compte compte = new Compte();
         compte.setIdCompte(1L);
         List<Compte> accounts = Collections.singletonList(compte);
@@ -78,6 +79,7 @@ class OperationServiceImplTest {
         entitiesDict.put("amount", new BigDecimal("100"));
         Client client = new Client();
         client.setIdClient(userId);
+        user.setClient(client);
         when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(user));
         when(operationRepository.findByClientIdAndEntities(userId, entitiesDict, entityManager)).thenReturn(new ArrayList<>());
 
@@ -101,7 +103,9 @@ class OperationServiceImplTest {
         user.setIdUser(userId);
         Client client = new Client();
         client.setIdClient(userId);
+        user.setClient(client);
         Compte compte = new Compte();
+        compte.setSolde(new BigDecimal("500"));
         compte.setIdCompte(1L);
         compte.setTypeCompte(accountType);
         Beneficiaire beneficiaire = new Beneficiaire();
@@ -132,9 +136,11 @@ class OperationServiceImplTest {
         user.setIdUser(userId);
         Client client = new Client();
         client.setIdClient(userId);
+        user.setClient(client);
         Compte compte = new Compte();
         compte.setIdCompte(1L);
         compte.setNumeroCompte(accountNum);
+        compte.setSolde(new BigDecimal("500"));
         Beneficiaire beneficiaire = new Beneficiaire();
         beneficiaire.setIdBeneficiaire(1L);
         List<Compte> accounts = Collections.singletonList(compte);

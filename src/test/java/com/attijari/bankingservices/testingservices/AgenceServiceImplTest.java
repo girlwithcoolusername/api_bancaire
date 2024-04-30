@@ -112,18 +112,19 @@ class AgenceServiceImplTest {
         agence1.setAdresse("angle 7 km, Route de Rabat et Allée des Troènes Aïn Sebaâ, Aïn Sebaâ");
 
         Agence agence2 = new Agence();
-        agence2.setAdresse("angle 7 km, Route de Rabat et Allée des Troènes Aïn Sebaâ, Aïn Sebaâ");
+        agence2.setAdresse("Paris"); // This address will be different
 
-        List<Agence> agencies = new ArrayList<>();
-        agencies.add(agence1);
-        agencies.add(agence2);
-
-        when(agenceRepository.findAll()).thenReturn(agencies);
+        // Mocking the repositories
+        List<Agence> allAgencies = new ArrayList<>();
+        allAgencies.add(agence1);
+        allAgencies.add(agence2);
+        when(agenceRepository.findAll()).thenReturn(allAgencies);
 
         // Call the method
         List<Agence> result = agenceService.getAgenciesByUserLocation(latitude, longitude);
 
         // Verify the result
-        assertEquals(2, result.size()); // Assuming 2 agencies found for the mocked location
+        assertEquals(1, result.size()); // We expect only one agency to match the provided location
     }
+
 }

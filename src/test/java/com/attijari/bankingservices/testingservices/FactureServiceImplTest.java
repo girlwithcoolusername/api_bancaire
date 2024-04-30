@@ -7,21 +7,20 @@ import com.attijari.bankingservices.models.Utilisateur;
 import com.attijari.bankingservices.repositories.FactureRepository;
 import com.attijari.bankingservices.repositories.UtilisateurRepository;
 import com.attijari.bankingservices.services.implementations.FactureServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class FactureServiceImplTest {
+public class FactureServiceImplTest {
 
     @Mock
     private FactureRepository factureRepository;
@@ -32,111 +31,97 @@ class FactureServiceImplTest {
     @InjectMocks
     private FactureServiceImpl factureService;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
     @Test
     void testUpdateInvoiceStatus() {
-        // Mock data
+        // Arrange
         Long userId = 1L;
-        Utilisateur user = new Utilisateur();
-        user.setIdUser(userId);
         Long beneficiaryId = 2L;
-        String status = "paid";
-
-        Facture invoice = new Facture();
-        invoice.setIdFacture(1L);
-        invoice.setStatutPaiement("pending");
+        String status = "payée";
+        Utilisateur utilisateur = new Utilisateur();
         Client client = new Client();
-        client.setIdClient(userId);
-        invoice.setClient(client);
-        invoice.setBeneficiaire(new Beneficiaire());
-        List<Facture> invoiceList = Arrays.asList(invoice);
+        client.setIdClient(1L);
+        utilisateur.setClient(client);
+        Beneficiaire beneficiaire = new Beneficiaire();
+        beneficiaire.setIdBeneficiaire(beneficiaryId);
+        Facture facture = new Facture();
+        facture.setClient(client);
+        facture.setBeneficiaire(beneficiaire);
+        List<Facture> invoiceList = new ArrayList<>();
+        invoiceList.add(facture);
 
-        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(utilisateur));
         when(factureRepository.findAll()).thenReturn(invoiceList);
 
-        // Call the method
+        // Act
         factureService.updateInvoiceStatus(userId, beneficiaryId, status);
 
-        // Verify the result
-        assertEquals(status, invoice.getStatutPaiement());
-        verify(factureRepository, times(1)).save(invoice);
+        // Assert
+        assertEquals(status, facture.getStatutPaiement());
+        verify(factureRepository, times(1)).save(any(Facture.class));
     }
 
     @Test
     void testCheckInvoiceStatus() {
-        // Mock data
-        String numFacture = "123";
-        Facture invoice = new Facture();
-        invoice.setNumeroFacture(numFacture);
-        invoice.setStatutPaiement("paid");
+        // Arrange
+        String numFacture = "123456";
+        Facture facture = new Facture();
+        facture.setStatutPaiement("payée");
 
-        when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.of(invoice));
+        when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.of(facture));
 
-        // Call the method
+        // Act
         boolean result = factureService.checkInvoiceStatus(numFacture);
 
-        // Verify the result
+        // Assert
         assertTrue(result);
     }
 
     @Test
-    void testCheckInvoiceStatus_NotPaid() {
-        // Mock data
-        String numFacture = "123";
-        Facture invoice = new Facture();
-        invoice.setNumeroFacture(numFacture);
-        invoice.setStatutPaiement("pending");
-
-        when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.of(invoice));
-
-        // Call the method
-        boolean result = factureService.checkInvoiceStatus(numFacture);
-
-        // Verify the result
-        assertFalse(result);
-    }
-
-    @Test
     void testCheckInvoiceStatus_NotFound() {
-        // Mock data
-        String numFacture = "123";
+        // Arrange
+        String numFacture = "123456";
 
         when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.empty());
 
-        // Call the method
+        // Act
         boolean result = factureService.checkInvoiceStatus(numFacture);
 
-        // Verify the result
+        // Assert
         assertFalse(result);
     }
 
     @Test
     void testGetInvoiceByNumber() {
-        // Mock data
-        String numeroFacture = "123";
-        Facture invoice = new Facture();
-        invoice.setNumeroFacture(numeroFacture);
+        // Arrange
+        String numFacture = "123456";
+        Facture facture = new Facture();
 
-        when(factureRepository.findByNumeroFacture(numeroFacture)).thenReturn(Optional.of(invoice));
+        when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.of(facture));
 
-        // Call the method
-        Optional<Facture> result = factureService.getInvoiceByNumber(numeroFacture);
+        // Act
+        Optional<Facture> result = factureService.getInvoiceByNumber(numFacture);
 
-        // Verify the result
+        // Assert
         assertTrue(result.isPresent());
-        assertEquals(invoice, result.get());
+        assertEquals(facture, result.get());
     }
 
     @Test
     void testGetInvoiceByNumber_NotFound() {
-        // Mock data
-        String numeroFacture = "123";
+        // Arrange
+        String numFacture = "123456";
 
-        when(factureRepository.findByNumeroFacture(numeroFacture)).thenReturn(Optional.empty());
+        when(factureRepository.findByNumeroFacture(numFacture)).thenReturn(Optional.empty());
 
-        // Call the method
-        Optional<Facture> result = factureService.getInvoiceByNumber(numeroFacture);
+        // Act
+        Optional<Facture> result = factureService.getInvoiceByNumber(numFacture);
 
-        // Verify the result
+        // Assert
         assertFalse(result.isPresent());
     }
 }

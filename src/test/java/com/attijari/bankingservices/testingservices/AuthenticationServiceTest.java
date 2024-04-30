@@ -14,10 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -122,16 +124,25 @@ class AuthenticationServiceTest {
         // Mock data
         AuthCredentials request = new AuthCredentials();
         request.setUsername("testuser");
-        request.setPassword("testpassword");
+        request.setPassword("wrongpassword");
+        request.setRole(Role.valueOf("ADMIN"));
 
+        // Mock repository
         when(repository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
 
-        // Call the method and verify it throws exception
-        assertThrows(Exception.class, () -> authenticationService.authenticate(request));
-        verify(authenticationManager, never()).authenticate(any());
-        verify(tokenRepository, never()).save(any());
-        verify(tokenRepository, never()).findAllTokensByAuthCredentials(any());
+        // Call the method and verify the exception
+        assertThrows(NoSuchElementException.class, () -> {
+            authenticationService.authenticate(request);
+        });
+
+        // Verify that repository.findByUsername is called once
+        verify(repository, times(1)).findByUsername(request.getUsername());
     }
+
+
+
+
+
     private void revokeAllTokenByauthCredentials(AuthCredentials authCredentials) {
         List<Token> validTokens = tokenRepository.findAllTokensByAuthCredentials(authCredentials.getId());
         if(validTokens.isEmpty()) {

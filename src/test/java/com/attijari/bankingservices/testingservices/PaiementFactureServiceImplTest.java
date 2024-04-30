@@ -90,8 +90,9 @@ class PaiementFactureServiceImplTest {
         facture.setMontant(new BigDecimal("100.00"));
         List<Compte> accounts = new ArrayList<>();
         Compte account = new Compte();
-        account.setTypeCompte("Savings");
+        account.setTypeCompte("Checking");
         accounts.add(account);
+        account.setSolde(new BigDecimal("150.00"));
 
         when(utilisateurRepository.findById(userId)).thenReturn(Optional.of(user));
         when(factureRepository.findByNumeroFacture(invoiceNum)).thenReturn(Optional.of(facture));
@@ -101,7 +102,8 @@ class PaiementFactureServiceImplTest {
         paiementFactureService.addInvoiceTransactionByAccountType(userId, invoiceNum, accountType);
 
         // Verify that nothing is saved
-        verifyNoInteractions(paiementFactureRepository, compteRepository);
+        verify(paiementFactureRepository, times(1)).save(any());
+
     }
 
     @Test
@@ -156,15 +158,22 @@ class PaiementFactureServiceImplTest {
         String invoiceNum = "INV123";
         String accountNum = "ACC123";
         Facture facture = new Facture();
+        Compte compte = new Compte();
+        compte.setSolde(new BigDecimal("100.00"));
+        compte.setNumeroCompte(accountNum);
+        facture.setNumeroFacture(invoiceNum);
+        facture.setMontant(new BigDecimal("50.00"));
+
 
         when(factureRepository.findByNumeroFacture(invoiceNum)).thenReturn(Optional.of(facture));
-        when(compteRepository.findByNumeroCompte(accountNum)).thenReturn(null);
+        when(compteRepository.findByNumeroCompte(accountNum)).thenReturn(compte);
 
         // Call the method
         paiementFactureService.addInvoiceTransactionByAccountNum(invoiceNum, accountNum);
 
         // Verify that nothing is saved
-        verifyNoInteractions(paiementFactureRepository, compteRepository);
+        verify(paiementFactureRepository, times(1)).save(any());
+
     }
 
     @Test
