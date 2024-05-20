@@ -27,6 +27,9 @@ public class Utilisateur {
     @Column(name = "telephone", unique = true, nullable = false, length = 15)
     private String telephone;
 
+    @Column(name = "voice_features", nullable = false)
+    private float[] voiceFeatures;
+
     @OneToOne
     @JoinColumn(name = "idClient",nullable = false)
     private Client client;

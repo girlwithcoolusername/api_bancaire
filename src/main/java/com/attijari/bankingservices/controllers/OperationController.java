@@ -65,7 +65,7 @@ public class OperationController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Plusieurs comptes sont de même type. Veuillez spécifier le numéro de compte!");
             }
             else{
-                if(accounts.get(0).getStatutCompte().equals("fermé")){
+                if(accounts.get(0).getStatutCompte().equals("actif")){
                     BigDecimal balance = accounts.get(0).getSolde();
                     BigDecimal amount = m.getOperation().getMontant();
                     int comparisonResult = balance.compareTo(amount);
@@ -110,7 +110,7 @@ public class OperationController {
     public ResponseEntity<String> addTransactionByAccountNumAndRib(@RequestBody ManageUserOperations m) {
         Optional<Compte> account = compteService.getAccountByUserIdAndAccountNum(m.getUserId(), m.getCompte().getNumeroCompte());
         if (account.isPresent()) {
-            if(!account.get().getStatutCompte().equals("fermé")){
+            if(!account.get().getStatutCompte().equals("actif")){
                 BigDecimal balance = account.get().getSolde();
                 BigDecimal amount = m.getOperation().getMontant();
                 int comparisonResult = balance.compareTo(amount);

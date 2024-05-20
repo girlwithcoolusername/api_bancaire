@@ -2,6 +2,7 @@ package com.attijari.bankingservices.controllers;
 
 import com.attijari.bankingservices.models.Utilisateur;
 import com.attijari.bankingservices.services.UtilisateurService;
+import com.attijari.bankingservices.utils.ManageFeatures;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,16 @@ public class UtilisateurController {
     @Operation(summary = "Méthode pour authentifier les utilisateurs")
     public ResponseEntity<Utilisateur> authenticateUser(@RequestParam String username, @RequestParam String password) {
         Utilisateur utilisateur = utilisateurService.authenticateUser(username, password);
+        if (utilisateur != null) {
+            return ResponseEntity.ok(utilisateur);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
+    @PostMapping("/authenticate-voice-print")
+    @Operation(summary = "Méthode pour authentifier les utilisateurs")
+    public ResponseEntity<Utilisateur> authenticateUserByVoicePrint(@RequestBody ManageFeatures manager) {
+        Utilisateur utilisateur = utilisateurService.authenticateUserByVoicePrint(manager.getFeatures());
         if (utilisateur != null) {
             return ResponseEntity.ok(utilisateur);
         } else {
