@@ -30,23 +30,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     }
 
     @Override
-    public Utilisateur authenticateUserByVoicePrint(float[] features) {
-        List<Utilisateur> users = utilisateurRepository.findAll();
-        Utilisateur mostSimilarUser = null;
-        double highestSimilarity = 0.0;
-
-        for (Utilisateur utilisateur : users) {
-            double similarity = CosineSimilarity.cosineSimilarity(utilisateur.getVoiceFeatures(), features);
-            if (similarity > highestSimilarity) {
-                highestSimilarity = similarity;
-                mostSimilarUser = utilisateur;
-            }
-        }
-
-        // Return the user only if the highest similarity exceeds the threshold
-        return highestSimilarity > 0.8 ? mostSimilarUser : null;
+    public List<Utilisateur> getAllUsers() {
+        return utilisateurRepository.findAll();
     }
-
 
     @Override
     public Utilisateur getUserById(Long userId) {

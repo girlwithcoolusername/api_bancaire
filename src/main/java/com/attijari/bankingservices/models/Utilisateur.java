@@ -27,11 +27,11 @@ public class Utilisateur {
     @Column(name = "telephone", unique = true, nullable = false, length = 15)
     private String telephone;
 
-    @Column(name = "voice_features", nullable = false)
-    private float[] voiceFeatures;
 
+    @Column(name = "chemin_audio", nullable = false)
+    private String cheminAudio;
     @OneToOne
-    @JoinColumn(name = "idClient",nullable = false)
+    @JoinColumn(name = "idClient", nullable = false)
     private Client client;
 
 }

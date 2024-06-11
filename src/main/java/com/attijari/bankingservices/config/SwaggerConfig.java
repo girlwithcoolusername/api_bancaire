@@ -16,7 +16,7 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi atividadeApi() {
         return GroupedOpenApi.builder()
-                .group("Atividades API REST")
+                .group("Fonctionnalités de l'API RESTful")
                 .packagesToScan("com.attijari.bankingservices")
                 .pathsToMatch("/**")
                 .build();
