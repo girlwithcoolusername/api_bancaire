@@ -46,7 +46,7 @@ public class PaiementFactureController {
                 if (accounts.size() > 1) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez préciser le numéro de compte car vous disposez de plusieurs comptes du même type.");
                 } else {
-                    if (!accounts.get(0).getStatutCompte().equals("actif")) {
+                    if (accounts.get(0).getStatutCompte().equals("actif")) {
                         BigDecimal balance = accounts.get(0).getSolde();
                         BigDecimal amount = invoice.get().getMontant();
                         int comparisonResult = balance.compareTo(amount);
