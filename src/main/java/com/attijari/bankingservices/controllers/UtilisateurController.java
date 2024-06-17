@@ -59,15 +59,15 @@ public class UtilisateurController {
             // Iterate over each user and compare audio files
             Long mostSimilarUserId = null;
             Utilisateur mostSimilarUser = null;
-            double highestSimilarityScore = Double.MIN_VALUE;
+            double lowestDistance = Double.MAX_VALUE;  // Initialize with a high value
 
             for (Utilisateur utilisateur : utilisateurs) {
                 String audioFilePath = utilisateur.getCheminAudio();
                 // Call FastAPI for audio comparison
-                double similarityScore = compareWithFastAPI(tempFile, audioFilePath);
+                double distance = compareWithFastAPI(tempFile, audioFilePath);
 
-                if (similarityScore > highestSimilarityScore) {
-                    highestSimilarityScore = similarityScore;
+                if (distance < lowestDistance) {  // Compare for the lowest distance
+                    lowestDistance = distance;
                     mostSimilarUserId = utilisateur.getIdUser();
                     mostSimilarUser = utilisateur;
                 }
